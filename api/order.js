@@ -1,6 +1,18 @@
 export default async function handler(req, res) {
   try {
-    const { link, quantity } = req.body;
+    const body =
+      typeof req.body === "string"
+        ? JSON.parse(req.body)
+        : (req.body || {});
+
+    const { link, quantity } = body;
+
+    if (!link || !quantity) {
+      return res.status(400).json({
+        success: false,
+        error: "link dan quantity wajib diisi"
+      });
+    }
 
     const response = await fetch("https://smm.id/api/v2", {
       method: "POST",
@@ -11,8 +23,8 @@ export default async function handler(req, res) {
         key: process.env.SMM_API_KEY,
         action: "add",
         service: process.env.SMM_SERVICE_ID,
-        link: link,
-        quantity: quantity
+        link,
+        quantity: String(quantity)
       })
     });
 
